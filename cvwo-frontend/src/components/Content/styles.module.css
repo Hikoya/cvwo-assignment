@@ -1,0 +1,21 @@
+.header {
+  height: 200px;
+  width: 100%;
+  background-color: #e9eef6;
+  padding-top: 50px;
+  text-align: center;
+}
+
+.task_container {
+  height: 600px;
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  background-color: #f6f7f8;
+  padding: 60px 100px;
+}
+
+.column_child {
+  display: inline-block;
+  margin-right: 100px;
+}
