@@ -15,7 +15,6 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
-	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -26,16 +25,8 @@ var sc *securecookie.SecureCookie
 var URL = "http://localhost:3000"
 
 func init() {
-	loadTheEnv()
 	createDBInstance()
 	initCookie()
-}
-
-func loadTheEnv() {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
 }
 
 func createDBInstance() {
