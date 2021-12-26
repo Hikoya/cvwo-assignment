@@ -11,7 +11,7 @@ import {
   Row,
 } from "reactstrap";
 import { loginUser, checkAuth } from "../../api/users";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export const LoginComponent = () => {
   const navigate = useNavigate();
@@ -106,6 +106,9 @@ export const LoginComponent = () => {
                           className="px-4"
                           name="Login"
                         />
+                      </Col>
+                      <Col xs="3">
+                      <Link to="/signup">Register</Link>
                       </Col>
                     </Row>
                   </Form>
