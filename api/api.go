@@ -15,6 +15,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
+	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -31,6 +32,8 @@ func init() {
 
 func createDBInstance() {
 	// DB connection string
+	_ = godotenv.Load()
+
 	connectionString := os.Getenv("DB_URI")
 
 	DB, err := sql.Open("mysql", connectionString)
