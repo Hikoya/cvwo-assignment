@@ -18,14 +18,14 @@ export const SignupComponent = () => {
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
 
-  const onSubmit = (e) => {
+  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     let userObj = {};
     userObj["email"] = email;
     userObj["password"] = password;
 
-    registerUser(userObj).then((data) => {
+    registerUser(userObj)?.then((data) => {
       if (data.data) {
         let res = JSON.parse(data.data);
         let success = res.result;
@@ -38,7 +38,11 @@ export const SignupComponent = () => {
     });
   };
 
-  const handleChange = (e) => {
+  const handleChange = (
+    e:
+      | React.ChangeEvent<HTMLTextAreaElement>
+      | React.ChangeEvent<HTMLInputElement>
+  ) => {
     const { name, value } = e.target;
     if (name === "password") {
       setPassword(value);
@@ -49,7 +53,7 @@ export const SignupComponent = () => {
 
   useEffect(() => {
     const check = () => {
-      checkAuth().then((data) => {
+      checkAuth()?.then((data) => {
         if (data.data) {
           let res = JSON.parse(data.data);
           let success = res.result;
@@ -108,7 +112,7 @@ export const SignupComponent = () => {
                         />
                       </Col>
                       <Col xs="3">
-                      <Link to="/login">Login</Link>
+                        <Link to="/login">Login</Link>
                       </Col>
                     </Row>
                   </Form>

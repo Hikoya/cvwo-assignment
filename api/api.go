@@ -25,11 +25,21 @@ var db *sql.DB
 var sc *securecookie.SecureCookie
 var URL = "http://localhost:3000"
 
+/**
+ * init
+ * @param
+ * Description: Main function
+ */
 func init() {
 	createDBInstance()
 	initCookie()
 }
 
+/**
+ * createDBInstance
+ * @param
+ * Description: Connect to MySQL database
+ */
 func createDBInstance() {
 	// DB connection string
 	_ = godotenv.Load()
@@ -50,12 +60,22 @@ func createDBInstance() {
 	db.SetConnMaxLifetime(time.Minute * 3)
 }
 
+/**
+ * initCookie
+ * @param
+ * Description: Initialise a new cookie handler with encryption
+ */
 func initCookie() {
 	cookie_bl, _ := hex.DecodeString(os.Getenv("COOKIE_BLOCK"))
 	cookie_hs, _ := hex.DecodeString(os.Getenv("COOKIE_HASH"))
 	sc = securecookie.New(cookie_bl, cookie_hs)
 }
 
+/**
+ * GetAllTask
+ * @param w HTTP Response Writer, r HTTP Request Handler
+ * Description: Handler for the /api/tasks route
+ */
 func GetAllTask(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", URL)
@@ -80,6 +100,11 @@ func GetAllTask(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(payload)
 }
 
+/**
+ * CreateTask
+ * @param w HTTP Response Writer, r HTTP Request Handler
+ * Description: Handler for the /api/createTask route
+ */
 func CreateTask(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", URL)
@@ -101,6 +126,11 @@ func CreateTask(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(payload)
 }
 
+/**
+ * DeleteTask
+ * @param w HTTP Response Writer, r HTTP Request Handler
+ * Description: Handler for the /api/deleteTask route
+ */
 func DeleteTask(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", URL)
@@ -126,6 +156,11 @@ func DeleteTask(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(payload)
 }
 
+/**
+ * UpdateTask
+ * @param w HTTP Response Writer, r HTTP Request Handler
+ * Description: Handler for the /api/updateTask route
+ */
 func UpdateTask(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
@@ -153,6 +188,11 @@ func UpdateTask(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(payload)
 }
 
+/**
+ * getAllTask
+ * @param userID User ID
+ * Description: Get all tasks associated with the particular user
+ */
 func getAllTask(userID int) []models.Task {
 	var tasks []models.Task
 
@@ -182,6 +222,11 @@ func getAllTask(userID int) []models.Task {
 	return tasks
 }
 
+/**
+ * createTask
+ * @param task Task Model
+ * Description: Create a specific task and insert into the database
+ */
 func createTask(task models.Task) string {
 	taskTable := os.Getenv("TASK_TABLE")
 	insertQuery := "INSERT INTO "
@@ -209,6 +254,11 @@ func createTask(task models.Task) string {
 	return msg
 }
 
+/**
+ * deleteTask
+ * @param task Task Model
+ * Description: Delete the specific task from the database based on task ID
+ */
 func deleteTask(taskID string) string {
 	taskTable := os.Getenv("TASK_TABLE")
 	deleteQuery := "DELETE FROM "
@@ -238,6 +288,11 @@ func deleteTask(taskID string) string {
 	return msg
 }
 
+/**
+ * updateTask
+ * @param task Task Model
+ * Description: Update the specific task with new details into the database based on task ID
+ */
 func updateTask(task models.Task) string {
 	taskTable := os.Getenv("TASK_TABLE")
 	updateQuery := "UPDATE "
@@ -266,6 +321,11 @@ func updateTask(task models.Task) string {
 	return msg
 }
 
+/**
+ * Register
+ * @param w HTTP Response Writer, r HTTP Request Handler
+ * Description: Handler for the /api/register route
+ */
 func Register(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", URL)
@@ -281,36 +341,91 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(payload)
 }
 
-func register(user models.User) string {
-	userTable := os.Getenv("USER_TABLE")
-	updateQuery := "INSERT INTO  "
-	valuesQuery := " (email, password) VALUES (?, ?)"
-
-	msg := `{"result":"failed"}`
+/**
+ * checkUserExist
+ * @param user User Model
+ * Description: Check whether the user already exist in the database and return true if the user exist
+ */
+func checkUserExist(user models.User) bool {
 
 	if len(user.Email) == 0 || len(user.Password) == 0 {
-		msg = `{"result":"failed, empty field"}`
+		return true
 	} else {
-		password, _ := bcrypt.GenerateFromPassword([]byte(user.Password), 14)
+		userTable := os.Getenv("USER_TABLE")
+		selectQuery := "SELECT * FROM  "
+		valuesQuery := " WHERE email = ? "
 
-		query := fmt.Sprintf("%s%s%s", updateQuery, userTable, valuesQuery)
+		query := fmt.Sprintf("%s%s%s", selectQuery, userTable, valuesQuery)
 
 		res, err := db.Prepare(query)
 		if err != nil {
 			log.Println(err.Error())
 		}
 
-		_, err = res.Exec(user.Email, password)
+		exec_res, err := res.Query(user.Email)
 		if err != nil {
 			log.Println(err.Error())
 		}
 
-		msg = `{"result":"success"}`
+		count := 0
+		for exec_res.Next() {
+			count += 1
+		}
+
+		if count > 0 {
+			return true
+		} else {
+			return false
+		}
+	}
+
+}
+
+/**
+ * register
+ * @param user User Model
+ * Description: Create a new user into the database
+ */
+func register(user models.User) string {
+
+	msg := `{"result":"failed"}`
+
+	if checkUserExist(user) {
+
+	} else {
+		userTable := os.Getenv("USER_TABLE")
+		updateQuery := "INSERT INTO  "
+		valuesQuery := " (email, password) VALUES (?, ?)"
+
+		if len(user.Email) == 0 || len(user.Password) == 0 {
+			msg = `{"result":"failed, empty field"}`
+		} else {
+			password, _ := bcrypt.GenerateFromPassword([]byte(user.Password), 14)
+
+			query := fmt.Sprintf("%s%s%s", updateQuery, userTable, valuesQuery)
+
+			res, err := db.Prepare(query)
+			if err != nil {
+				log.Println(err.Error())
+			}
+
+			_, err = res.Exec(user.Email, password)
+			if err != nil {
+				log.Println(err.Error())
+			}
+
+			msg = `{"result":"success"}`
+		}
 	}
 
 	return msg
 }
 
+/**
+ * Login
+ * @param w HTTP Response Writer, r HTTP Request Handler
+ * Description: Handler for the /api/login route
+ */
 func Login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", URL)
@@ -342,6 +457,12 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(payload)
 }
 
+/**
+ * login
+ * @param user User Model
+ * Description: Check and verify the user information in the database and generate a new
+ * cookie if the information is valid
+ */
 func login(user models.User) (string, bool, string) {
 	userTable := os.Getenv("USER_TABLE")
 	selectQuery := "SELECT * FROM  "
@@ -426,6 +547,11 @@ func login(user models.User) (string, bool, string) {
 	}
 }
 
+/**
+ * CheckAuthentication
+ * @param w HTTP Response Writer, r HTTP Request Handler
+ * Description: Handler for the /api/checkUser route
+ */
 func CheckAuthentication(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
@@ -458,6 +584,11 @@ func CheckAuthentication(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(msg)
 }
 
+/**
+ * checkAuthorisation
+ * @param r HTTP Request
+ * Description: Check whether the cookie exist and verify if the cookie is valid
+ */
 func checkAuthorisation(r *http.Request) (bool, int) {
 	res := false
 	userID := 0
@@ -486,6 +617,11 @@ func checkAuthorisation(r *http.Request) (bool, int) {
 	return res, userID
 }
 
+/**
+ * checkAuthDB
+ * @param taskID Task ID, userID User ID
+ * Description: Check whether the user is authorized to edit/delete the task
+ */
 func checkAuthDB(taskID int, userID int) bool {
 	payload := false
 

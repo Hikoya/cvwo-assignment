@@ -11,17 +11,17 @@ export const ContentComponent = () => {
   const navigate = useNavigate();
 
   const [modal, setModal] = useState(false);
-  const [categoryList, setCategoryList] = useState([]);
-  const [previousList, setPreviousList] = useState([]);
+  const [categoryList, setCategoryList] = useState<string[]>([]);
+  const [previousList, setPreviousList] = useState<string[]>([]);
   const [userID, setUserID] = useState(0);
   const [email, setEmail] = useState("");
-  const [taskList, setTaskList] = useState([]);
+  const [taskList, setTaskList] = useState<string[]>([]);
 
   const toggle = () => {
     setModal(!modal);
   };
 
-  const saveTask = (taskObj) => {
+  const saveTask = (taskObj: any) => {
     if (userID === 0) {
       window.location.reload();
     } else {
@@ -33,19 +33,19 @@ export const ContentComponent = () => {
     }
   };
 
-  const deleteTask = (index) => {
+  const deleteTask = (index: number) => {
     deleteTasks(index);
     window.location.reload();
   };
 
-  const updateTask = (taskObj) => {
+  const updateTask = (taskObj: any) => {
     updateTasks(taskObj);
     window.location.reload();
   };
 
-  const populateCategoryList = (data) => {
+  const populateCategoryList = (data: any) => {
     let arr = ["ALL"];
-    data.map((obj) => arr.push(obj.category));
+    data.map((obj: any) => arr.push(obj.category));
 
     if (arr) {
       let temp = arr.map((x) => (typeof x === "string" ? x.toUpperCase() : x));
@@ -55,12 +55,12 @@ export const ContentComponent = () => {
     }
   };
 
-  const selectedItem = (selected) => {
+  const selectedItem = (selected: any) => {
     if (selected === "ALL") {
       setTaskList(previousList);
     } else {
-      let temp = [];
-      previousList.forEach((obj) => {
+      let temp = [] as string[];
+      previousList.forEach((obj: any) => {
         if (obj.category.toUpperCase() === selected.toUpperCase()) {
           temp.push(obj);
         }
@@ -72,7 +72,7 @@ export const ContentComponent = () => {
 
   useEffect(() => {
     const check = () => {
-      checkAuth().then((data) => {
+      checkAuth()?.then((data) => {
         if (data.data) {
           let res = JSON.parse(data.data);
           let success = res.result;
@@ -84,7 +84,7 @@ export const ContentComponent = () => {
             let sent_obj = {};
             sent_obj["userID"] = res.userID;
 
-            getTasks(sent_obj).then((data) => {
+            getTasks(sent_obj)?.then((data) => {
               if (data.data) {
                 setTaskList(data.data);
                 setPreviousList(data.data);
@@ -118,7 +118,7 @@ export const ContentComponent = () => {
         </div>
       </div>
       <div className={styles.task_container}>
-        {taskList.map((obj) => (
+        {taskList.map((obj: any) => (
           <Card
             key={obj.id}
             taskObj={obj}

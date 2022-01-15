@@ -1,12 +1,34 @@
-import React, { useState } from "react";
+import React, { MouseEventHandler, useEffect, useState } from "react";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 
-export const CreateTaskPopup = ({ modal, toggle, save }) => {
+type Props = {
+  modal: boolean;
+  toggle: MouseEventHandler<any> | undefined;
+  updateTask: React.MouseEventHandler<HTMLButtonElement | HTMLAnchorElement>;
+  taskObj: any;
+  index: number;
+};
+
+export const EditTaskPopup = ({
+  modal,
+  toggle,
+  updateTask,
+  taskObj,
+  index,
+}: Props) => {
   const [taskName, setTaskName] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
 
-  const handleChange = (e) => {
+  const onClickEvent = (tempObj: any) => {
+    updateTask(tempObj);
+  };
+
+  const handleChange = (
+    e:
+      | React.ChangeEvent<HTMLTextAreaElement>
+      | React.ChangeEvent<HTMLInputElement>
+  ) => {
     const { name, value } = e.target;
     if (name === "taskName") {
       setTaskName(value);
@@ -17,23 +39,32 @@ export const CreateTaskPopup = ({ modal, toggle, save }) => {
     }
   };
 
-  const handleSave = (e) => {
+  const handleUpdate = (e: any) => {
     e.preventDefault();
 
-    let taskObj = {};
-    taskObj["taskName"] = taskName;
-    taskObj["description"] = description;
-    taskObj["category"] = category;
-    save(taskObj);
-
-    setTaskName("");
-    setDescription("");
-    setCategory("");
+    if (taskName === "" || description === "" || category === ""){
+      alert("Please fill in all required fields");
+    }
+    else{
+      let tempObj = {};
+      tempObj["id"] = index;
+      tempObj["taskName"] = taskName;
+      tempObj["description"] = description;
+      tempObj["category"] = category;
+  
+      onClickEvent(tempObj);
+    }
   };
+
+  useEffect(() => {
+    setTaskName(taskObj.taskName);
+    setDescription(taskObj.description);
+    setCategory(taskObj.category);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <Modal isOpen={modal} toggle={toggle}>
-      <ModalHeader toggle={toggle}>Create Task</ModalHeader>
+      <ModalHeader toggle={toggle}>Edit Task</ModalHeader>
       <ModalBody>
         <form>
           <div className="form-group">
@@ -44,17 +75,19 @@ export const CreateTaskPopup = ({ modal, toggle, save }) => {
               value={taskName}
               onChange={handleChange}
               name="taskName"
+              required
             ></input>
           </div>
           <br />
           <div className="form-group">
             <label>Description</label>
             <textarea
-              rows="4"
+              rows={4}
               className="form-control"
               value={description}
               onChange={handleChange}
               name="description"
+              required
             ></textarea>
           </div>
           <br />
@@ -66,13 +99,14 @@ export const CreateTaskPopup = ({ modal, toggle, save }) => {
               value={category}
               onChange={handleChange}
               name="category"
+              required
             ></input>
           </div>
         </form>
       </ModalBody>
       <ModalFooter>
-        <Button color="primary" onClick={handleSave}>
-          Create
+        <Button color="primary" onClick={handleUpdate}>
+          Update
         </Button>
         <Button color="secondary" onClick={toggle}>
           Cancel

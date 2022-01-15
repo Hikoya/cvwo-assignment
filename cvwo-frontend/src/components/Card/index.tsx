@@ -1,15 +1,27 @@
-import React, { useState } from "react";
+import React, { MouseEventHandler, useState } from "react";
 import { colors } from "../../constants";
 import { EditTaskPopup } from "../../modals/EditTask";
 import styles from "./styles.module.css";
 
-export const Card = ({ taskObj, index, deleteTask, updateListArray }) => {
+type Props = {
+  taskObj: any;
+  index: number;
+  deleteTask: any;
+  updateListArray: MouseEventHandler<any>;
+};
+
+export const Card = ({
+  taskObj,
+  index,
+  deleteTask,
+  updateListArray,
+}: Props) => {
   const [modal, setModal] = useState(false);
   const toggle = () => {
     setModal(!modal);
   };
 
-  const updateTask = (obj) => {
+  const updateTask = (obj: any) => {
     updateListArray(obj);
     setModal(false);
   };
