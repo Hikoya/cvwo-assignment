@@ -1,5 +1,7 @@
 # Lister
 ## CVWO 2021 Submission
+Name: Chan Chung Loong
+Matriculation Number: A0240830R
 
 Lister is a simple task management application to help users keep track of their to-do items in a quick and efficient manner.
 
